@@ -42,4 +42,4 @@ python -u run_longExp.py \
 --patience 10 \
 --lradj 'TST' \
 --pct_start 0.2 \
---itr 1 --batch_size 64 --learning_rate 0.0001
+--itr 1 --batch_size 64 --learning_rate 0.0001 > ./logs/LongForecasting/$model_id_name.log
