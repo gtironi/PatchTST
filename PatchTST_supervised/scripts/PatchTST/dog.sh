@@ -5,7 +5,7 @@ fi
 if [ ! -d "./logs/LongForecasting" ]; then
     mkdir ./logs/LongForecasting
 fi
-seq_len=192
+seq_len=336
 model_name=PatchTST
 
 root_path_name=./dataset/
@@ -28,10 +28,10 @@ python -u run_longExp.py \
 --seq_len $seq_len \
 --pred_len $pred_len \
 --enc_in 13 \
---e_layers 2 \
---n_heads 2 \
---d_model 64 \
---d_ff 128 \
+--e_layers 3 \
+--n_heads 16 \
+--d_model 128 \
+--d_ff 256 \
 --dropout 0.2 \
 --fc_dropout 0.2 \
 --head_dropout 0 \
@@ -42,4 +42,4 @@ python -u run_longExp.py \
 --patience 10 \
 --lradj 'TST' \
 --pct_start 0.2 \
---itr 1 --batch_size 64 --learning_rate 0.0001 > ./logs/LongForecasting/$model_id_name.log
+--itr 1 --batch_size 128 --learning_rate 0.0001 > ./logs/LongForecasting/$model_id_name.log
