@@ -28,10 +28,14 @@ class Learner(GetAttr):
                         cbs=None, 
                         metrics=None, 
                         opt_func=Adam,
+                        print_every:int=100,
+                        train_pct:float=1.0,
                         **kwargs):
                 
         self.model, self.dls, self.loss_func, self.lr = model, dls, loss_func, lr
         self.opt_func = opt_func
+        self.print_every = print_every
+        self.train_pct = train_pct
         #self.opt = self.opt_func(self.model.parameters(), self.lr) 
         self.set_opt()
         
@@ -131,6 +135,15 @@ class Learner(GetAttr):
 
 
     def all_batches(self, type_):
+        # total iterations for this dataloader (computed once per epoch)
+        try:
+            self.total_iters = len(self.dl)
+        except Exception:
+            self.total_iters = None
+        if type_ == "train" and self.total_iters and self.train_pct and self.train_pct < 1.0:
+            self.max_iters = max(1, int(self.total_iters * self.train_pct))
+        else:
+            self.max_iters = None
         # for self.num,self.batch in enumerate(progress_bar(dl, leave=False)):        
         for num, batch in enumerate(self.dl):            
             self.iter, self.batch = num, batch            
@@ -138,6 +151,8 @@ class Learner(GetAttr):
             elif type_ == 'valid': self.batch_validate()
             elif type_ == 'predict': self.batch_predict()             
             elif type_ == 'test': self.batch_test()
+            if self.max_iters is not None and (num + 1) >= self.max_iters:
+                break
 
     def batch_train(self):
         self('before_batch_train')
@@ -162,6 +177,12 @@ class Learner(GetAttr):
     def _do_batch_train(self):        
         # forward + get loss + backward + optimize          
         self.pred, self.loss = self.train_step(self.batch)                                      
+        if self.print_every and (self.iter % self.print_every == 0):
+            loss_val = self.loss.detach().item() if hasattr(self.loss, "detach") else float(self.loss)
+            total = self.total_iters
+    
+            it_str = f"{self.iter:6d}/{total:6d}" if isinstance(total, int) else f"{self.iter:6d}"
+            print(f"iter {it_str} | epoch {getattr(self, 'epoch', -1):4d} | loss {loss_val:.6f}", flush=True)
         # zero the parameter gradients
         self.opt.zero_grad()                 
         # gradient

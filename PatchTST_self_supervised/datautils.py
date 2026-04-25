@@ -10,7 +10,8 @@ from src.data.datamodule import DataLoaders
 from src.data.pred_dataset import *
 
 DSETS = ['ettm1', 'ettm2', 'etth1', 'etth2', 'electricity',
-         'traffic', 'illness', 'weather', 'exchange'
+         'traffic', 'illness', 'weather', 'exchange',
+         'dogmove'
         ]
 
 def get_dls(params):
@@ -19,7 +20,7 @@ def get_dls(params):
     if not hasattr(params,'use_time_features'): params.use_time_features = False
 
     if params.dset == 'ettm1':
-        root_path = '/data/datasets/public/ETDataset/ETT-small/'
+        root_path = '/datasets/ETT-small/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_ETT_minute,
@@ -37,7 +38,7 @@ def get_dls(params):
 
 
     elif params.dset == 'ettm2':
-        root_path = '/data/datasets/public/ETDataset/ETT-small/'
+        root_path = '/datasets/ETT-small/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_ETT_minute,
@@ -54,7 +55,7 @@ def get_dls(params):
                 )
 
     elif params.dset == 'etth1':
-        root_path = '/data/datasets/public/ETDataset/ETT-small/'
+        root_path = '/datasets/ETT-small/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_ETT_hour,
@@ -72,7 +73,7 @@ def get_dls(params):
 
 
     elif params.dset == 'etth2':
-        root_path = '/data/datasets/public/ETDataset/ETT-small/'
+        root_path = '/datasets/ETT-small/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_ETT_hour,
@@ -90,7 +91,7 @@ def get_dls(params):
     
 
     elif params.dset == 'electricity':
-        root_path = '/data/datasets/public/electricity/'
+        root_path = '/datasets/electricity/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_Custom,
@@ -107,7 +108,7 @@ def get_dls(params):
                 )
 
     elif params.dset == 'traffic':
-        root_path = '/data/datasets/public/traffic/'
+        root_path = '/datasets/traffic/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_Custom,
@@ -124,7 +125,7 @@ def get_dls(params):
                 )
     
     elif params.dset == 'weather':
-        root_path = '/data/datasets/public/weather/'
+        root_path = '/datasets/weather/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_Custom,
@@ -141,7 +142,7 @@ def get_dls(params):
                 )
 
     elif params.dset == 'illness':
-        root_path = '/data/datasets/public/illness/'
+        root_path = '/datasets/illness/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_Custom,
@@ -158,13 +159,31 @@ def get_dls(params):
                 )
 
     elif params.dset == 'exchange':
-        root_path = '/data/datasets/public/exchange_rate/'
+        root_path = '/datasets/exchange_rate/'
         size = [params.context_points, 0, params.target_points]
         dls = DataLoaders(
                 datasetCls=Dataset_Custom,
                 dataset_kwargs={
                 'root_path': root_path,
                 'data_path': 'exchange_rate.csv',
+                'features': params.features,
+                'scale': True,
+                'size': size,
+                'use_time_features': params.use_time_features
+                },
+                batch_size=params.batch_size,
+                workers=params.num_workers,
+                )
+    elif params.dset == 'dogmove':
+        # Expects output of `prepare_dogmove.py`:
+        # dataset/dogmove_pretrain.parquet with columns: date,<sensor0>,<sensor1>,...
+        root_path = 'dataset'
+        size = [params.context_points, 0, params.target_points]
+        dls = DataLoaders(
+                datasetCls=Dataset_Custom,
+                dataset_kwargs={
+                'root_path': root_path,
+                'data_path': 'dogmove_pretrain.parquet',
                 'features': params.features,
                 'scale': True,
                 'size': size,

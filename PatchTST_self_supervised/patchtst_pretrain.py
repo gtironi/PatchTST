@@ -44,6 +44,8 @@ parser.add_argument('--mask_ratio', type=float, default=0.4, help='masking ratio
 # Optimization args
 parser.add_argument('--n_epochs_pretrain', type=int, default=10, help='number of pre-training epochs')
 parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
+# Training speed (debug)
+parser.add_argument('--percentage', type=float, default=1.0, help='fraction of training batches per epoch (0,1]; useful for quick tests')
 # model id to keep track of the number of models saved
 parser.add_argument('--pretrained_model_id', type=int, default=1, help='id of the saved pretrained model')
 parser.add_argument('--model_type', type=str, default='based_model', help='for multivariate model or univariate model')
@@ -105,6 +107,7 @@ def find_lr():
                         loss_func, 
                         lr=args.lr, 
                         cbs=cbs,
+                        train_pct=args.percentage,
                         )                        
     # fit the data to the model
     suggested_lr = learn.lr_finder()
@@ -131,6 +134,7 @@ def pretrain_func(lr=args.lr):
                         loss_func, 
                         lr=lr, 
                         cbs=cbs,
+                        train_pct=args.percentage,
                         #metrics=[mse]
                         )                        
     # fit the data to the model

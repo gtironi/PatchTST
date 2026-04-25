@@ -237,8 +237,11 @@ class Dataset_Custom(Dataset):
 
     def __read_data__(self):
         self.scaler = StandardScaler()
-        df_raw = pd.read_csv(os.path.join(self.root_path,
-                                          self.data_path))
+        data_file = os.path.join(self.root_path, self.data_path)
+        if data_file.endswith(".parquet"):
+            df_raw = pd.read_parquet(data_file)
+        else:
+            df_raw = pd.read_csv(data_file)
 
         '''
         df_raw.columns: [time_col_name, ...(other features), target feature]
